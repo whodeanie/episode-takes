@@ -60,7 +60,6 @@ export type Take = {
   rating: number; // 0.5 to 5.0 in 0.5 steps
   body: string;
   spoiler: boolean;
-  upvotes: number;
   createdAt: number;
 };
 

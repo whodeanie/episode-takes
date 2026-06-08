@@ -7,8 +7,6 @@ import type { Episode, Season, Show, ShowSummary } from "./types";
 import { DEMO_SHOWS, DEMO_EPISODES } from "./demoData";
 
 const BASE = "https://api.themoviedb.org/3";
-const IMG = "https://image.tmdb.org/t/p";
-
 type Cached<T> = { value: T; expires: number };
 const cache = new Map<string, Cached<unknown>>();
 const TTL_MS = 1000 * 60 * 60; // 1 hour

@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   getAllRatings,
   getProfile,
   getShowLists,
   getTakes,
+  exportLocalData,
+  importLocalData,
   setUsername as persistUsername
 } from "@/lib/store";
 import type { Profile, ShowList, Take } from "@/lib/types";
@@ -21,6 +23,8 @@ export function ProfileView() {
   const [lists, setLists] = useState<ShowList[]>([]);
   const [takes, setTakes] = useState<Take[]>([]);
   const [retro, setRetro] = useState<{ key: string; text: string; loading: boolean; error?: string } | null>(null);
+  const [backupMessage, setBackupMessage] = useState<string | null>(null);
+  const importInput = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const p = getProfile();
@@ -30,7 +34,7 @@ export function ProfileView() {
     setTakes(getTakes().sort((a, b) => b.createdAt - a.createdAt));
   }, []);
 
-  const ratings = useMemo(() => getAllRatings(), [takes.length]);
+  const ratings = getAllRatings();
 
   // group takes by show + season
   const grouped = useMemo(() => {
@@ -55,6 +59,34 @@ export function ProfileView() {
     const p = persistUsername(draft);
     setProfile(p);
     setEditing(false);
+  }
+
+  function downloadBackup() {
+    const blob = new Blob([exportLocalData()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `episode-takes-${new Date().toISOString().slice(0, 10)}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setBackupMessage("Backup downloaded.");
+  }
+
+  async function restoreBackup(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+
+    const result = importLocalData(await file.text());
+    if (!result.ok) {
+      setBackupMessage(result.error);
+      return;
+    }
+
+    setBackupMessage(
+      `Restored ${result.takes} takes, ${result.lists} list items, and ${result.ratings} ratings.`,
+    );
+    window.location.reload();
   }
 
   async function generateRetro(showId: number, showName: string, seasonNumber: number, ts: Take[]) {
@@ -117,6 +149,44 @@ export function ProfileView() {
           <Stat label="Avg rating" value={avgRating ? avgRating.toFixed(2) : "0.00"} />
         </div>
       </header>
+
+      <section className="rounded-lg border border-ink-800 bg-ink-900/40 p-4">
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h2 className="font-display text-lg">Local data backup</h2>
+            <p className="mt-1 max-w-xl text-sm text-ink-400">
+              Ratings and takes stay in this browser. Download a versioned JSON
+              backup before clearing storage or moving devices.
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={downloadBackup}
+              className="text-xs px-3 py-1.5 rounded bg-screen-gold text-ink-950 font-medium hover:bg-amber-300"
+            >
+              Download backup
+            </button>
+            <button
+              type="button"
+              onClick={() => importInput.current?.click()}
+              className="text-xs px-3 py-1.5 rounded border border-ink-700 hover:border-screen-cyan"
+            >
+              Restore backup
+            </button>
+            <input
+              ref={importInput}
+              type="file"
+              accept="application/json,.json"
+              onChange={restoreBackup}
+              className="hidden"
+            />
+          </div>
+        </div>
+        {backupMessage ? (
+          <p className="mt-3 text-xs text-ink-300">{backupMessage}</p>
+        ) : null}
+      </section>
 
       <Lists title="Watching" items={watchingByStatus.watching} />
       <Lists title="Watched" items={watchingByStatus.watched} />

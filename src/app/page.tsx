@@ -29,12 +29,14 @@ export default async function HomePage({ searchParams }: { searchParams: SP }) {
           <h1 className="font-display text-3xl md:text-5xl font-semibold tracking-tight">
             Rate every episode.
             <br />
-            Share your takes.
+            Keep your takes.
             <br />
-            <span className="text-screen-gold">Find your taste twins.</span>
+            <span className="text-screen-gold">Own your data.</span>
           </h1>
           <p className="mt-4 text-ink-300 max-w-xl">
-            Letterboxd for TV at the episode level. Half a star to five, in 0.5 steps. Polish a rough thought into a clean review with one click. Free, no account required.
+            A local-first TV journal at the episode level. Rate in 0.5 steps,
+            write a take, polish a rough thought, and export your data. Free, no
+            account required.
           </p>
           <form action="/" method="get" className="mt-6 flex gap-2 max-w-lg">
             <input

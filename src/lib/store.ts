@@ -7,6 +7,7 @@
 
 import type { Profile, ShowList, Take, WatchStatus } from "./types";
 import { STORAGE_VERSION } from "./types";
+import { createBackup, parseBackup, type RatingMap } from "./backup";
 
 const KEY_PROFILE = "et.profile";
 const KEY_TAKES = "et.takes";
@@ -79,7 +80,6 @@ export function setUsername(username: string): Profile {
 }
 
 // Ratings keyed by showId.episodeId
-type RatingMap = Record<string, number>;
 function ratingKey(showId: number, episodeId: number): string {
   return `${showId}.${episodeId}`;
 }
@@ -112,7 +112,9 @@ export function getTakes(): Take[] {
 }
 
 export function getTakesForEpisode(episodeId: number): Take[] {
-  return getTakes().filter((t) => t.episodeId === episodeId).sort((a, b) => b.upvotes - a.upvotes || b.createdAt - a.createdAt);
+  return getTakes()
+    .filter((t) => t.episodeId === episodeId)
+    .sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export function getTake(takeId: string): Take | null {
@@ -131,7 +133,7 @@ export function getTakesByUser(userId: string): Take[] {
   return getTakes().filter((t) => t.userId === userId);
 }
 
-export function saveTake(input: Omit<Take, "id" | "createdAt" | "upvotes" | "userId" | "username">): Take {
+export function saveTake(input: Omit<Take, "id" | "createdAt" | "userId" | "username">): Take {
   const profile = getProfile();
   const all = getTakes();
   // Replace existing user take for the same episode.
@@ -141,18 +143,11 @@ export function saveTake(input: Omit<Take, "id" | "createdAt" | "upvotes" | "use
     id: randomId(),
     userId: profile.userId,
     username: profile.username,
-    upvotes: 0,
     createdAt: Date.now()
   };
   filtered.push(take);
   safeWrite(KEY_TAKES, filtered);
   return take;
-}
-
-export function upvoteTake(takeId: string): void {
-  const all = getTakes();
-  const next = all.map((t) => (t.id === takeId ? { ...t, upvotes: t.upvotes + 1 } : t));
-  safeWrite(KEY_TAKES, next);
 }
 
 export function deleteTake(takeId: string): void {
@@ -181,4 +176,33 @@ export function removeFromList(showId: number): ShowList[] {
   const next = getShowLists().filter((s) => s.showId !== showId);
   safeWrite(KEY_LISTS, next);
   return next;
+}
+
+export function exportLocalData(): string {
+  return createBackup({
+    profile: safeRead<Profile | null>(KEY_PROFILE, null),
+    takes: getTakes(),
+    lists: getShowLists(),
+    ratings: getAllRatings(),
+  });
+}
+
+export function importLocalData(
+  serialized: string,
+): { ok: true; takes: number; lists: number; ratings: number } | { ok: false; error: string } {
+  const parsed = parseBackup(serialized);
+  if (!parsed.ok) return parsed;
+
+  safeWrite(KEY_PROFILE, parsed.data.profile);
+  safeWrite(KEY_TAKES, parsed.data.takes);
+  safeWrite(KEY_LISTS, parsed.data.lists);
+  safeWrite(KEY_RATINGS, parsed.data.ratings);
+  safeWrite(KEY_VERSION, STORAGE_VERSION);
+
+  return {
+    ok: true,
+    takes: parsed.data.takes.length,
+    lists: parsed.data.lists.length,
+    ratings: Object.keys(parsed.data.ratings).length,
+  };
 }

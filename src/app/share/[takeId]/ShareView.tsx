@@ -31,7 +31,8 @@ export function ShareView({ takeId }: { takeId: string }) {
       <div className="rounded-lg border border-ink-800 bg-ink-900/40 p-8 text-center">
         <h1 className="font-display text-2xl">Take not found</h1>
         <p className="text-sm text-ink-400 mt-2">
-          Take URLs are scoped to the device that wrote them in this version of the app. The author needs to open the same browser to surface it. Cross device share lands in v2.
+          Take permalinks are scoped to the browser that wrote them. Restore the
+          author&apos;s local backup in this browser to open the take.
         </p>
         <Link href="/" className="inline-block mt-4 text-sm text-screen-cyan">Back home</Link>
       </div>
@@ -69,13 +70,13 @@ export function ShareView({ takeId }: { takeId: string }) {
             onClick={copy}
             className="text-xs px-3 py-1.5 rounded border border-ink-700 hover:border-screen-cyan"
           >
-            {copied ? "Copied" : "Copy link"}
+            {copied ? "Copied" : "Copy local permalink"}
           </button>
           <Link
             href={`/episode/${take.showId}-${take.seasonNumber}-${take.episodeNumber}`}
             className="text-xs px-3 py-1.5 rounded border border-ink-700 hover:border-screen-gold"
           >
-            Read more takes
+            Open episode
           </Link>
         </div>
       </div>

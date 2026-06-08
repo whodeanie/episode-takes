@@ -46,7 +46,7 @@ export function TakeForm({ episode, initialRating, initialBody, onSaved }: Props
       } else if (data.error) {
         setWarn(data.error);
       }
-    } catch (err) {
+    } catch {
       setWarn("Polish failed. Your take is still saved when you submit.");
     } finally {
       setPolishing(false);

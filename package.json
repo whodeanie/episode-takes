@@ -2,7 +2,7 @@
   "name": "episode-takes",
   "version": "0.1.0",
   "private": true,
-  "description": "Letterboxd for TV. Rate every episode, write a take, share it. Powered by TMDB and Groq Llama 3.3 70B.",
+  "description": "Local-first TV journal for rating episodes, writing takes, and exporting your data.",
   "license": "MIT",
   "engines": {
     "node": ">=20.0.0"
@@ -11,26 +11,27 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "dependencies": {
-    "next": "^15.4.0",
+    "next": "16.2.7",
     "openai": "4.78.1",
     "react": "19.0.0",
     "react-dom": "19.0.0"
   },
   "devDependencies": {
-    "@types/node": "22.9.0",
+    "@types/node": "22.19.20",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "autoprefixer": "10.4.20",
-    "eslint": "9.14.0",
-    "eslint-config-next": "^15.4.0",
-    "postcss": "8.4.49",
+    "eslint": "9.39.4",
+    "eslint-config-next": "16.2.7",
+    "postcss": "8.5.10",
     "tailwindcss": "3.4.14",
     "typescript": "5.6.3",
-    "vitest": "2.1.5"
+    "vitest": "4.1.8"
   }
 }

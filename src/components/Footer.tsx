@@ -8,8 +8,8 @@ export function Footer() {
           <div className="font-display text-base text-ink-100 mb-2">Episode Takes</div>
           <p>
             A free, open source corner of the internet for rating TV one episode at a
-            time. No accounts required. Your takes live on your device until you
-            choose to share them.
+            time. No accounts required. Your takes live on your device and can be
+            exported as a versioned backup.
           </p>
         </div>
         <div>

@@ -5,7 +5,7 @@ import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Episode Takes",
-  description: "Rate every episode. Share your takes. Find your taste twins.",
+  description: "A local-first TV journal for rating episodes, writing takes, and owning your data.",
   openGraph: {
     title: "Episode Takes",
     description: "Letterboxd for TV at the episode level.",
